@@ -32,9 +32,12 @@ public class SiteMeshFilter implements Filter {
     private ContainerTweaks containerTweaks;
     private ScalabilitySupportConfiguration scalabilitySupportConfiguration;
     private static final String ALREADY_APPLIED_KEY = "com.opensymphony.sitemesh.APPLIED_ONCE";
+    private String alreadyAppliedKey;
 
     public void init(FilterConfig filterConfig) {
         this.filterConfig = filterConfig;
+        alreadyAppliedKey = ALREADY_APPLIED_KEY + "-" + this.filterConfig.getFilterName();
+
         containerTweaks = new ContainerTweaks();
         scalabilitySupportConfiguration = new ScalabilitySupportConfiguration(filterConfig);
     }
@@ -110,7 +113,7 @@ public class SiteMeshFilter implements Filter {
             }
             throw e;
         } catch (ServletException e) {
-            request.setAttribute(ALREADY_APPLIED_KEY, null);
+            request.setAttribute(alreadyAppliedKey, null);
             if (e.getCause() instanceof MaxOutputLengthExceeded) {
                 //
                 // they have sent a response that is bigger than is what acceptable so
@@ -184,10 +187,10 @@ public class SiteMeshFilter implements Filter {
     }
 
     private boolean filterAlreadyAppliedForRequest(HttpServletRequest request) {
-        if (request.getAttribute(ALREADY_APPLIED_KEY) == Boolean.TRUE) {
+        if (request.getAttribute(alreadyAppliedKey) == Boolean.TRUE) {
             return true;
         } else {
-            request.setAttribute(ALREADY_APPLIED_KEY, Boolean.TRUE);
+            request.setAttribute(alreadyAppliedKey, Boolean.TRUE);
             return false;
         }
     }
